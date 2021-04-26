@@ -1,24 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
+import { NavBar } from "./Components/navBar"
+import { TodoForm } from "./Components/todoForm"
+import { TodoList } from "./Components/todoList"
+import React, { useState, useEffect } from 'react'
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route
+} from "react-router-dom";
 
 function App() {
+  let initTodo = JSON.parse(localStorage.getItem("todos"))
+  if (initTodo == null)
+    initTodo = []
+  console.log(initTodo)
+  const [todos, settodos] = useState(initTodo)
+  const deleteTodo = (e) => {
+    settodos(todos.filter((t) => t !== e))
+  }
+  const addTodo = (title, content) => {
+    let newTodo = {
+      id: todos.length + 1,
+      title: title,
+      content: content
+    };
+    settodos([...todos, newTodo])
+  }
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos))
+  }, [todos])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <NavBar />
+      <Switch>
+        <Route exact path="/" render={() => {
+          return (<>
+            <TodoForm addTodo={addTodo} />
+            <TodoList todos={todos} deleteTodo={deleteTodo} />
+          </>)
+        }}>
+        </Route>
+      </Switch>
+    </Router >
   );
 }
 
